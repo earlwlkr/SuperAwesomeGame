@@ -26,6 +26,9 @@ namespace SuperAwesomeGame
 
         private MouseState _lastMouseState;
 
+        private TileMap _map = new TileMap();
+        
+
         public SuperAwesomeGame()
         {
             Graphics = new GraphicsDeviceManager(this);
@@ -41,7 +44,7 @@ namespace SuperAwesomeGame
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
+            // Create a new _spriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Show mouse on screen.
@@ -49,6 +52,8 @@ namespace SuperAwesomeGame
             Mouse.WindowHandle = Window.Handle;
 
             Manager.Content = Content;
+
+            Tile.TileSetTexture = Content.Load<Texture2D>(@"Sprite2D\part4_tileset");
 
             // Create menu with items.
             _mainMenu = CreateMainMenu();
@@ -62,7 +67,9 @@ namespace SuperAwesomeGame
             var left = GraphicsDevice.Viewport.Width/2 - Manager.ButtonTextures[0].Width/2;
             var top = Constants.MainMenuTop;
 
-            menu.AddMenuItem(new Button("New Game", left, top));
+            var newGameItem = new Button("New Game", left, top);
+            newGameItem.OnClick += OnNewGameMenuButtonClicked;
+            menu.AddMenuItem(newGameItem);
 
             top += Constants.MenuButtonHeightOffset;
             var optionsItem = new Button("Options", left, top);
@@ -78,6 +85,13 @@ namespace SuperAwesomeGame
             menu.AddMenuItem(exitItem);
 
             return menu;
+        }
+
+        private void OnNewGameMenuButtonClicked(object sender, EventArgs e)
+        {
+            _mainMenu.SlideLeft(-_mainMenu.Area.Width);
+            Thread.Sleep(100);
+            _entityCollection.Add(_map);
         }
 
         private void OnOptionsMenuButtonClicked(object sender, EventArgs e)

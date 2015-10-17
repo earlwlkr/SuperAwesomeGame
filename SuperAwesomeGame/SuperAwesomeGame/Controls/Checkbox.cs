@@ -15,15 +15,14 @@ namespace SuperAwesomeGame.Controls
         public Texture2D TextureUnchecked { get; private set; }
 
 
-        public Checkbox(SoundEffect soundEffect, 
-            SpriteFont font, string content, float left, float top, Texture2D textureChecked, Texture2D textureUnchecked, bool value)
-            : base(soundEffect, font, content)
+        public Checkbox(string content, float left, float top, bool value)
+            : base(content)
         {
             Area.Left = left;
             Area.Top = top;
 
-            TextureChecked = textureChecked;
-            TextureUnchecked = textureUnchecked;
+            TextureChecked = Manager.CheckboxTextures[0];
+            TextureUnchecked = Manager.CheckboxTextures[1];
 
             Area.Width = TextureChecked.Width;
             Area.Height = TextureChecked.Height;

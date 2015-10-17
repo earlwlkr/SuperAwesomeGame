@@ -13,18 +13,17 @@ namespace SuperAwesomeGame.Controls
         public Texture2D TextureSelected { get; private set; }
 
 
-        public Button(SoundEffect soundEffect, 
-            SpriteFont font, string content, float left, float top, Texture2D idle, Texture2D selected)
-            : base(soundEffect, font, content)
+        public Button(string content, float left, float top)
+            : base(content)
         {
             Area.Left = left;
             Area.Top = top;
 
-            TextureIdle = idle;
-            TextureSelected = selected;
+            TextureIdle = Manager.ButtonTextures[0];
+            TextureSelected = Manager.ButtonTextures[1];
 
-            Area.Width = idle.Width;
-            Area.Height = idle.Height;
+            Area.Width = TextureIdle.Width;
+            Area.Height = TextureIdle.Height;
         }
 
         public override void Select(bool toggle)

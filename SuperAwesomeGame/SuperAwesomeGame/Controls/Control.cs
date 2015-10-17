@@ -12,11 +12,10 @@ namespace SuperAwesomeGame.Controls
 
         public string Content { get; private set; }
 
-        public Control(SoundEffect soundEffect, 
-            SpriteFont font, string content)
+        public Control(string content)
         {
-            SoundEffect = soundEffect;
-            Font = font;
+            SoundEffect = Manager.ClickSoundEffect;
+            Font = Manager.Font;
             Content = content;
         }
 

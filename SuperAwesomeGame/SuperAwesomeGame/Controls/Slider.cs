@@ -16,18 +16,17 @@ namespace SuperAwesomeGame.Controls
         public Texture2D TextureMarker { get; private set; }
 
 
-        public Slider(SoundEffect soundEffect, 
-            SpriteFont font, string content, float left, float top, Texture2D slider, Texture2D marker, float value = 0f)
-            : base(soundEffect, font, content)
+        public Slider(string content, float left, float top, float value = 0f)
+            : base(content)
         {
             Area.Left = left;
             Area.Top = top;
 
-            TextureSlider = slider;
-            TextureMarker = marker;
+            TextureSlider = Manager.SliderTextures[0];
+            TextureMarker = Manager.SliderTextures[1];
 
-            Area.Width = slider.Width;
-            Area.Height = slider.Height + marker.Height;
+            Area.Width = TextureSlider.Width;
+            Area.Height = TextureSlider.Height + TextureMarker.Height;
 
             if (value > 100)
             {
@@ -39,8 +38,8 @@ namespace SuperAwesomeGame.Controls
             }
 
             _markerPosition = Area.Left - TextureMarker.Width / 2 + value * Area.Width / 100;
-            
-            Area.Top -= (slider.Height + marker.Height);
+
+            Area.Top -= (TextureSlider.Height + TextureMarker.Height);
         }
 
         public float Value

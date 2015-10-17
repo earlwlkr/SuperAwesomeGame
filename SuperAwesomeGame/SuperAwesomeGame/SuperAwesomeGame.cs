@@ -18,12 +18,6 @@ namespace SuperAwesomeGame
         private SpriteBatch _spriteBatch;
         private readonly EntityCollection _entityCollection;
 
-        private SpriteFont _font;
-        private List<Texture2D> _buttonTextures;
-        private List<Texture2D> _sliderTextures;
-        private List<Texture2D> _checkboxTextures; 
-        private SoundEffect _soundEffect;
-
         private float _difficultyValue = 0f;
         private bool _enableSubtitles = false;
 
@@ -54,63 +48,32 @@ namespace SuperAwesomeGame
             IsMouseVisible = true;
             Mouse.WindowHandle = Window.Handle;
 
-            _font = Content.Load<SpriteFont>(@"Fonts\KenVector_Future");
-            _buttonTextures = new List<Texture2D>
-            {
-                Content.Load<Texture2D>(@"Sprite2D\yellow_button"),
-                Content.Load<Texture2D>(@"Sprite2D\yellow_button_pressed")
-            };
-            _sliderTextures = new List<Texture2D>
-            {
-                Content.Load<Texture2D>(@"Sprite2D\slider"),
-                Content.Load<Texture2D>(@"Sprite2D\slider_marker")
-            };
-            _checkboxTextures = new List<Texture2D>
-            {
-                Content.Load<Texture2D>(@"Sprite2D\checkbox_checked"),
-                Content.Load<Texture2D>(@"Sprite2D\checkbox")
-            };
-            _soundEffect = Content.Load<SoundEffect>(@"SFX\rollover");
+            Manager.Content = Content;
 
             // Create menu with items.
             _mainMenu = CreateMainMenu();
             _entityCollection.Add(_mainMenu);
         }
 
-        private Button CreateButton(string content, float left, float top)
-        {
-            return new Button(_soundEffect, _font, content, left, top, _buttonTextures[0], _buttonTextures[1]);
-        }
-
-        private Slider CreateSlider(string content, float left, float top, float value)
-        {
-            return new Slider(_soundEffect, _font, content, left, top, _sliderTextures[0], _sliderTextures[1], value);
-        }
-
-        private Checkbox CreateCheckbox(string content, float left, float top, bool value)
-        {
-            return new Checkbox(_soundEffect, _font, content, left, top, _checkboxTextures[0], _checkboxTextures[1], value);
-        }
-
         private Menu CreateMainMenu()
         {
             var menu = new Menu();
 
-            var left = GraphicsDevice.Viewport.Width/2 - _buttonTextures[0].Width/2;
+            var left = GraphicsDevice.Viewport.Width/2 - Manager.ButtonTextures[0].Width/2;
             var top = Constants.MainMenuTop;
 
-            menu.AddMenuItem(CreateButton("New Game", left, top));
+            menu.AddMenuItem(new Button("New Game", left, top));
 
             top += Constants.MenuButtonHeightOffset;
-            var optionsItem = CreateButton("Options", left, top);
+            var optionsItem = new Button("Options", left, top);
             optionsItem.OnClick += OnOptionsMenuButtonClicked;
             menu.AddMenuItem(optionsItem);
 
             top += Constants.MenuButtonHeightOffset;
-            menu.AddMenuItem(CreateButton("Statistics", left, top));
+            menu.AddMenuItem(new Button("Statistics", left, top));
 
             top += Constants.MenuButtonHeightOffset;
-            var exitItem = CreateButton("Exit", left, top);
+            var exitItem = new Button("Exit", left, top);
             exitItem.OnClick += OnExitMenuButtonClicked;
             menu.AddMenuItem(exitItem);
 
@@ -134,15 +97,15 @@ namespace SuperAwesomeGame
         {
             var menu = new Menu();
 
-            var left = GraphicsDevice.Viewport.Width / 2 - _buttonTextures[0].Width / 2;
+            var left = GraphicsDevice.Viewport.Width / 2 - Manager.ButtonTextures[0].Width / 2;
             var top = Constants.MainMenuTop;
 
-            var backButton = CreateButton("Back", left, 400);
+            var backButton = new Button("Back", left, 400);
             backButton.OnClick += OnOptionsBackButtonClicked;
             menu.AddMenuItem(backButton);
 
-            menu.AddMenuItem(CreateSlider("Difficulty", left, top, _difficultyValue));
-            menu.AddMenuItem(CreateCheckbox("Subtitles", menu.Area.Left + menu.Area.Width - _checkboxTextures[0].Width, top + 40, _enableSubtitles));
+            menu.AddMenuItem(new Slider("Difficulty", left, top, _difficultyValue));
+            menu.AddMenuItem(new Checkbox("Subtitles", menu.Area.Left + menu.Area.Width - Manager.CheckboxTextures[0].Width, top + 40, _enableSubtitles));
             return menu;
         }
 
@@ -153,7 +116,7 @@ namespace SuperAwesomeGame
             _optionsMenu.SlideLeft(-_optionsMenu.Area.Width);
             _entityCollection.Remove(_optionsMenu);
            
-            var left = GraphicsDevice.Viewport.Width / 2 - _buttonTextures[0].Width / 2;
+            var left = GraphicsDevice.Viewport.Width / 2 - Manager.ButtonTextures[0].Width / 2;
             _mainMenu.SlideRight(left);
         }
 

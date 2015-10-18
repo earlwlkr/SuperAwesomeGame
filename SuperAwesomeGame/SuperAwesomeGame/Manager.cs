@@ -74,5 +74,7 @@ namespace SuperAwesomeGame
                 return _font ?? (_font = Content.Load<SpriteFont>(@"Fonts\KenVector_Future"));
             }
         }
+
+        public static Camera Camera { get; set; }
     }
 }

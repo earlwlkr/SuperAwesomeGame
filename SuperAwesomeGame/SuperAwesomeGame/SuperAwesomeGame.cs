@@ -25,6 +25,7 @@ namespace SuperAwesomeGame
         private Menu _optionsMenu;
 
         private MouseState _lastMouseState;
+        private Vector2 _firstClickPosition;
 
         private TileMap _map = new TileMap();
         
@@ -57,6 +58,7 @@ namespace SuperAwesomeGame
 
             // Create menu with items.
             _mainMenu = CreateMainMenu();
+            
             _entityCollection.Add(_mainMenu);
         }
 
@@ -91,6 +93,7 @@ namespace SuperAwesomeGame
         {
             _mainMenu.SlideLeft(-_mainMenu.Area.Width);
             Thread.Sleep(100);
+            Manager.Camera = new Camera(_map);
             _entityCollection.Add(_map);
         }
 
@@ -150,10 +153,6 @@ namespace SuperAwesomeGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                Exit();
-
             var mouseState = Mouse.GetState();
             var entitiesAtPos = _entityCollection.GetEntitiesAtPos(mouseState.X, mouseState.Y);
 
@@ -162,13 +161,37 @@ namespace SuperAwesomeGame
             {
                 case ButtonState.Pressed:
                     entitiesAtPos.Select(true);
+
+                    if (_lastMouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        if (Manager.Camera != null)
+                        {
+                            Manager.Camera.MoveX(-mouseState.X + _firstClickPosition.X);
+                            Manager.Camera.MoveY(-mouseState.Y + _firstClickPosition.Y);
+                        }
+                    }
+
+                    _firstClickPosition.X = mouseState.X;
+                    _firstClickPosition.Y = mouseState.Y;
                     break;
+
                 case ButtonState.Released:
                     if (_lastMouseState.LeftButton == ButtonState.Pressed)
                     {
                         _entityCollection.Select(false);
                     }
+                    
                     break;
+            }
+            
+
+            if (mouseState.ScrollWheelValue > _lastMouseState.ScrollWheelValue)
+            {
+                Manager.Camera.Scale += 0.1f;
+            }
+            else if (mouseState.ScrollWheelValue < _lastMouseState.ScrollWheelValue)
+            {
+                Manager.Camera.Scale -= 0.1f;
             }
 
             _lastMouseState = mouseState;
@@ -186,7 +209,21 @@ namespace SuperAwesomeGame
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.MediumTurquoise);
-            _spriteBatch.Begin();
+            if (Manager.Camera != null)
+            {
+                _spriteBatch.Begin(SpriteSortMode.Deferred,
+                        BlendState.AlphaBlend,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Manager.Camera.GetTransform());
+            }
+            else
+            {
+                _spriteBatch.Begin(SpriteSortMode.Deferred,
+                    BlendState.AlphaBlend);
+            }
 
             // Draw all sprites in collection.
             _entityCollection.Draw(gameTime, _spriteBatch);

@@ -54,8 +54,6 @@ namespace SuperAwesomeGame
 
             Manager.Content = Content;
 
-            Tile.TileSetTexture = Content.Load<Texture2D>(@"Sprite2D\part4_tileset");
-
             // Create menu with items.
             _mainMenu = CreateMainMenu();
             

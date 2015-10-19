@@ -25,14 +25,21 @@ namespace SuperAwesomeGame
         private const int BaseOffsetY = -64;
         private const float HeightRowDepthMod = 0.00001f;
 
+        public const int TileWidth = 64;
+        public const int TileHeight = 64;
+        public const int TileStepX = TileWidth;
+        public const int TileStepY = TileHeight / 4;
+        public const int OddRowXOffset = TileWidth / 2;
+        public const int HeightTileOffset = TileWidth / 2;
+
         public float WidthLimit
         {
-            get { return (MapWidth - CellsAcross) * Tile.TileStepX; }
+            get { return (MapWidth - CellsAcross) * TileStepX; }
         }
 
         public float HeightLimit
         {
-            get { return (MapHeight - CellsDown) * Tile.TileStepY; }
+            get { return (MapHeight - CellsDown) * TileStepY; }
         }
 
         public TileMap()
@@ -101,41 +108,49 @@ namespace SuperAwesomeGame
             base.Update(gameTime);
         }
 
+        public Rectangle GetSourceRectangle(int tileIndex)
+        {
+            var tileY = tileIndex / (Manager.MapTextureSet.Width / TileWidth);
+            var tileX = tileIndex % (Manager.MapTextureSet.Width / TileWidth);
+
+            return new Rectangle(tileX * TileWidth, tileY * TileHeight, TileWidth, TileHeight);
+        }
+
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             // The cell on the top left of the viewport.
-            var firstX = (int)(Manager.Camera.Location.X / Tile.TileStepX);
-            var firstY = (int)(Manager.Camera.Location.Y / Tile.TileStepY);
+            var firstX = (int)(Manager.Camera.Location.X / TileStepX);
+            var firstY = (int)(Manager.Camera.Location.Y / TileStepY);
 
             // The offset of that first cell.
-            var offsetX = (int)(Manager.Camera.Location.X % Tile.TileStepX);
-            var offsetY = (int)(Manager.Camera.Location.Y % Tile.TileStepY);
+            var offsetX = (int)(Manager.Camera.Location.X % TileStepX);
+            var offsetY = (int)(Manager.Camera.Location.Y % TileStepY);
 
-            var maxdepth = ((MapWidth + 1) * ((MapHeight + 1) * Tile.TileWidth)) / 10;
+            var maxdepth = ((MapWidth + 1) * ((MapHeight + 1) * TileWidth)) / 10;
 
             for (var y = 0; y < CellsDown; y++)
             {
                 var rowOffset = 0;
                 // Move right if it's the odd row to fit tiles.
                 if ((firstY + y) % 2 != 0)
-                    rowOffset = Tile.OddRowXOffset;
+                    rowOffset = OddRowXOffset;
 
                 for (var x = 0; x < CellsAcross; x++)
                 {
                     // The coordinates on the real map.
                     var mapx = (firstX + x);
                     var mapy = (firstY + y);
-                    var depthOffset = 0.7f - ((mapx + (mapy * Tile.TileWidth)) / maxdepth);
+                    var depthOffset = 0.7f - ((mapx + (mapy * TileWidth)) / maxdepth);
 
                     foreach (var tileId in Rows[mapy].Columns[mapx].BaseTiles)
                     {
                         spriteBatch.Draw(
-                            Tile.TileSetTexture,
+                            Manager.MapTextureSet,
                             new Rectangle(
-                                (x * Tile.TileStepX) - offsetX + rowOffset + BaseOffsetX,
-                                (y * Tile.TileStepY) - offsetY + BaseOffsetY,
-                                Tile.TileWidth, Tile.TileHeight),
-                            Tile.GetSourceRectangle(tileId),
+                                (x * TileStepX) - offsetX + rowOffset + BaseOffsetX,
+                                (y * TileStepY) - offsetY + BaseOffsetY,
+                                TileWidth, TileHeight),
+                            GetSourceRectangle(tileId),
                             Color.White,
                             0.0f,
                             Vector2.Zero,
@@ -148,12 +163,12 @@ namespace SuperAwesomeGame
                     foreach (var tileId in Rows[mapy].Columns[mapx].HeightTiles)
                     {
                         spriteBatch.Draw(
-                            Tile.TileSetTexture,
+                            Manager.MapTextureSet,
                             new Rectangle(
-                                (x * Tile.TileStepX) - offsetX + rowOffset + BaseOffsetX,
-                                (y * Tile.TileStepY) - offsetY + BaseOffsetY - (heightRow * Tile.HeightTileOffset),
-                                Tile.TileWidth, Tile.TileHeight),
-                            Tile.GetSourceRectangle(tileId),
+                                (x * TileStepX) - offsetX + rowOffset + BaseOffsetX,
+                                (y * TileStepY) - offsetY + BaseOffsetY - (heightRow * HeightTileOffset),
+                                TileWidth, TileHeight),
+                            GetSourceRectangle(tileId),
                             Color.White,
                             0.0f,
                             Vector2.Zero,
@@ -165,12 +180,12 @@ namespace SuperAwesomeGame
                     foreach (var tileId in Rows[mapy].Columns[mapx].TopperTiles)
                     {
                         spriteBatch.Draw(
-                            Tile.TileSetTexture,
+                            Manager.MapTextureSet,
                             new Rectangle(
-                                (x * Tile.TileStepX) - offsetX + rowOffset + BaseOffsetX,
-                                (y * Tile.TileStepY) - offsetY + BaseOffsetY - (heightRow * Tile.HeightTileOffset),
-                                Tile.TileWidth, Tile.TileHeight),
-                            Tile.GetSourceRectangle(tileId),
+                                (x * TileStepX) - offsetX + rowOffset + BaseOffsetX,
+                                (y * TileStepY) - offsetY + BaseOffsetY - (heightRow * HeightTileOffset),
+                                TileWidth, TileHeight),
+                            GetSourceRectangle(tileId),
                             Color.White,
                             0.0f,
                             Vector2.Zero,

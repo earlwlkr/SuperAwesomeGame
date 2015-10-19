@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,6 +7,8 @@ namespace SuperAwesomeGame
 {
     public class Manager
     {
+        private static Texture2D _mapTextureSet;
+
         private static List<Texture2D> _buttonTextures;
         private static List<Texture2D> _sliderTextures;
         private static List<Texture2D> _checkboxTextures;
@@ -17,6 +16,15 @@ namespace SuperAwesomeGame
         private static SpriteFont _font;
 
         public static ContentManager Content { get; set; }
+
+        public static Texture2D MapTextureSet
+        {
+            get
+            {
+                if (Content == null) return null;
+                return _mapTextureSet ?? (_mapTextureSet = Content.Load<Texture2D>(@"Sprite2D\part4_tileset"));
+            }
+        }
 
         public static List<Texture2D> ButtonTextures
         {

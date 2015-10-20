@@ -8,6 +8,7 @@ namespace SuperAwesomeGame
     public class Manager
     {
         private static Texture2D _mapTextureSet;
+        private static Texture2D _characterTextureSet;
 
         private static List<Texture2D> _buttonTextures;
         private static List<Texture2D> _sliderTextures;
@@ -23,6 +24,15 @@ namespace SuperAwesomeGame
             {
                 if (Content == null) return null;
                 return _mapTextureSet ?? (_mapTextureSet = Content.Load<Texture2D>(@"Sprite2D\part4_tileset"));
+            }
+        }
+
+        public static Texture2D CharacterTextureSet
+        {
+            get
+            {
+                if (Content == null) return null;
+                return _characterTextureSet ?? (_characterTextureSet = Content.Load<Texture2D>(@"Sprite2D\characters"));
             }
         }
 

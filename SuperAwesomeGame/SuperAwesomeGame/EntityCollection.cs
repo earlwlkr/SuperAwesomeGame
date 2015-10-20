@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SuperAwesomeGame.Common;
 
 namespace SuperAwesomeGame
 {
@@ -28,9 +29,20 @@ namespace SuperAwesomeGame
             _entities.Remove(entity);
         }
 
+        public bool Contains(GameEntity entity)
+        {
+            return _entities.Contains(entity);
+        }
+
+        public bool IsEmpty()
+        {
+            return _entities.Count == 0;
+        }
+
         public EntityCollection GetEntitiesAtPos(float x, float y)
         {
-            return new EntityCollection(_entities.FindAll(i => i.Area.Contains(x, y)));
+            Vector2 screenPos = Utils.ScreenToWorld(new Vector2(x, y));
+            return new EntityCollection(_entities.FindAll(i => i.Area.Contains(screenPos)));
         }
 
         public void Select(bool toggle)

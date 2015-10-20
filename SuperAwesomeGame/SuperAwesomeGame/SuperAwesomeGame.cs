@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -25,10 +26,12 @@ namespace SuperAwesomeGame
         private Menu _optionsMenu;
 
         private MouseState _lastMouseState;
+        private bool _holding = false;
         private Vector2 _firstClickPosition;
 
         private TileMap _map = new TileMap();
-        
+        private int _currentCharacterType = 0;
+        private List<Character> _characters = new List<Character>(); 
 
         public SuperAwesomeGame()
         {
@@ -93,6 +96,18 @@ namespace SuperAwesomeGame
             Thread.Sleep(100);
             Manager.Camera = new Camera(_map);
             _entityCollection.Add(_map);
+
+            var left = GraphicsDevice.Viewport.Width / 2 - Manager.ButtonTextures[0].Width / 2;
+            var top = Constants.MainMenuTop;
+
+            var changeButton = new Button("Change", left, 400);
+            changeButton.OnClick += OnChangeButtonClicked;
+            _entityCollection.Add(changeButton);
+        }
+
+        private void OnChangeButtonClicked(object sender, EventArgs e)
+        {
+            _currentCharacterType++;
         }
 
         private void OnOptionsMenuButtonClicked(object sender, EventArgs e)
@@ -151,22 +166,49 @@ namespace SuperAwesomeGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Delete))
+            {
+                foreach (var character in _characters.Where(character => character.State == EntityState.Selected))
+                {
+                    _characters.Remove(character);
+                    _entityCollection.Remove(character);
+                    break;
+                }
+            }
+
             var mouseState = Mouse.GetState();
-            var entitiesAtPos = _entityCollection.GetEntitiesAtPos(mouseState.X, mouseState.Y);
 
             // Left mouse button events.
             switch (mouseState.LeftButton)
             {
                 case ButtonState.Pressed:
+                    var entitiesAtPos = _entityCollection.GetEntitiesAtPos(mouseState.X, mouseState.Y);
+
                     entitiesAtPos.Select(true);
+                    foreach (var character in _characters)
+                    {
+                        if (!entitiesAtPos.Contains(character)) continue;
+                        var state = character.State;
+                        foreach (var c in _characters)
+                        {
+                            c.State = EntityState.Default;
+                        }
+                        character.State = state;
+                        break;
+                    }
 
                     if (_lastMouseState.LeftButton == ButtonState.Pressed)
                     {
-                        if (Manager.Camera != null)
+                        if (Manager.Camera != null && _holding)
                         {
                             Manager.Camera.MoveX(-mouseState.X + _firstClickPosition.X);
                             Manager.Camera.MoveY(-mouseState.Y + _firstClickPosition.Y);
                         }
+                    }
+                    else if (entitiesAtPos.IsEmpty())
+                    {
+                        _holding = true;
                     }
 
                     _firstClickPosition.X = mouseState.X;
@@ -177,8 +219,26 @@ namespace SuperAwesomeGame
                     if (_lastMouseState.LeftButton == ButtonState.Pressed)
                     {
                         _entityCollection.Select(false);
+                        _holding = false;
                     }
                     
+                    break;
+            }
+
+            switch (mouseState.RightButton)
+            {
+                case ButtonState.Pressed:
+
+                    break;
+
+                case ButtonState.Released:
+                    if (_lastMouseState.RightButton == ButtonState.Pressed)
+                    {
+                        var character = new Character(mouseState.X, mouseState.Y, _currentCharacterType);
+                        _characters.Add(character);
+                        _entityCollection.Add(character);
+                    }
+
                     break;
             }
             

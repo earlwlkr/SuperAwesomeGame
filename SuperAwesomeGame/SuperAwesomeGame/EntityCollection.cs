@@ -41,8 +41,7 @@ namespace SuperAwesomeGame
 
         public EntityCollection GetEntitiesAtPos(float x, float y)
         {
-            Vector2 screenPos = Utils.ScreenToWorld(new Vector2(x, y));
-            return new EntityCollection(_entities.FindAll(i => i.Area.Contains(screenPos)));
+            return new EntityCollection(_entities.FindAll(i => i.Area.Contains(x, y)));
         }
 
         public void Select(bool toggle)

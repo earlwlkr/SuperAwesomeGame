@@ -20,11 +20,7 @@ namespace SuperAwesomeGame
             get { return _scale; }
             set
             {
-                if (value < 0)
-                {
-                    value = 0f;
-                }
-                _scale = value;
+                _scale = MathHelper.Clamp(value, 0.6f, 1.4f);
             }
         }
 

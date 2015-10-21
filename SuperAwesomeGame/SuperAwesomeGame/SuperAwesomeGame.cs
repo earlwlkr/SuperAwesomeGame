@@ -31,7 +31,8 @@ namespace SuperAwesomeGame
 
         private TileMap _map = new TileMap();
         private int _currentCharacterType = 0;
-        private List<Character> _characters = new List<Character>(); 
+        private List<Character> _characters = new List<Character>();
+        private Button _changeButton;
 
         public SuperAwesomeGame()
         {
@@ -93,6 +94,7 @@ namespace SuperAwesomeGame
         private void OnNewGameMenuButtonClicked(object sender, EventArgs e)
         {
             _mainMenu.SlideLeft(-_mainMenu.Area.Width);
+            _entityCollection.Remove(_mainMenu);
             Thread.Sleep(100);
             Manager.Camera = new Camera(_map);
             _entityCollection.Add(_map);
@@ -100,9 +102,9 @@ namespace SuperAwesomeGame
             var left = GraphicsDevice.Viewport.Width / 2 - Manager.ButtonTextures[0].Width / 2;
             var top = Constants.MainMenuTop;
 
-            var changeButton = new Button("Change", left, 400);
-            changeButton.OnClick += OnChangeButtonClicked;
-            _entityCollection.Add(changeButton);
+            _changeButton = new Button("Change", left, 400);
+            _changeButton.OnClick += OnChangeButtonClicked;
+            //_entityCollection.Add(_changeButton);
         }
 
         private void OnChangeButtonClicked(object sender, EventArgs e)
@@ -176,6 +178,19 @@ namespace SuperAwesomeGame
                     break;
                 }
             }
+            else if (keyboardState.IsKeyDown(Keys.Right))
+            {
+                // Increase character type index.
+                _currentCharacterType++;
+            }
+            else if (keyboardState.IsKeyDown(Keys.Left))
+            {
+                _currentCharacterType--;
+                if (_currentCharacterType < 0)
+                {
+                    _currentCharacterType = 2;
+                }
+            }
 
             var mouseState = Mouse.GetState();
 
@@ -183,33 +198,48 @@ namespace SuperAwesomeGame
             switch (mouseState.LeftButton)
             {
                 case ButtonState.Pressed:
-                    var entitiesAtPos = _entityCollection.GetEntitiesAtPos(mouseState.X, mouseState.Y);
+                    
+                    if (_changeButton != null && _changeButton.Area.Contains(mouseState.X, mouseState.Y))
+                    {
+                        _changeButton.Select(true);
+                    }
+                    else
+                    {
+                        var mouseWorldPos = Utils.ScreenToWorld(new Vector2(mouseState.X, mouseState.Y));
+                        var entitiesAtPos = _entityCollection.GetEntitiesAtPos(mouseWorldPos.X, mouseWorldPos.Y);
 
-                    entitiesAtPos.Select(true);
-                    foreach (var character in _characters)
-                    {
-                        if (!entitiesAtPos.Contains(character)) continue;
-                        var state = character.State;
-                        foreach (var c in _characters)
+                        entitiesAtPos.Select(true);
+                        foreach (var character in _characters)
                         {
-                            c.State = EntityState.Default;
+                            if (!entitiesAtPos.Contains(character)) continue;
+                            var state = character.State;
+                            var clicked = ((Character) character).Clicked;
+                            // Unselect all characters except for the clicked one.
+                            foreach (var c in _characters)
+                            {
+                                c.State = EntityState.Default;
+                                ((Character) c).Clicked = false;
+                            }
+                            character.State = state;
+                            ((Character)character).Clicked = clicked;
+                            break;
                         }
-                        character.State = state;
-                        break;
-                    }
 
-                    if (_lastMouseState.LeftButton == ButtonState.Pressed)
-                    {
-                        if (Manager.Camera != null && _holding)
+                        if (_lastMouseState.LeftButton == ButtonState.Pressed)
                         {
-                            Manager.Camera.MoveX(-mouseState.X + _firstClickPosition.X);
-                            Manager.Camera.MoveY(-mouseState.Y + _firstClickPosition.Y);
+                            if (Manager.Camera != null && _holding)
+                            {
+
+                                Manager.Camera.MoveX(_firstClickPosition.X - mouseState.X);
+                                Manager.Camera.MoveY(_firstClickPosition.Y - mouseState.Y);
+                            }
+                        }
+                        else if (entitiesAtPos.IsEmpty())
+                        {
+                            _holding = true;
                         }
                     }
-                    else if (entitiesAtPos.IsEmpty())
-                    {
-                        _holding = true;
-                    }
+                    
 
                     _firstClickPosition.X = mouseState.X;
                     _firstClickPosition.Y = mouseState.Y;
@@ -218,6 +248,11 @@ namespace SuperAwesomeGame
                 case ButtonState.Released:
                     if (_lastMouseState.LeftButton == ButtonState.Pressed)
                     {
+                        if (_changeButton != null)
+                        {
+                            _changeButton.Select(false);
+                        }
+                        
                         _entityCollection.Select(false);
                         _holding = false;
                     }
@@ -234,7 +269,8 @@ namespace SuperAwesomeGame
                 case ButtonState.Released:
                     if (_lastMouseState.RightButton == ButtonState.Pressed)
                     {
-                        var character = new Character(mouseState.X, mouseState.Y, _currentCharacterType);
+                        var pos = Utils.ScreenToWorld(new Vector2(mouseState.X, mouseState.Y));
+                        var character = new Character(pos.X, pos.Y, _currentCharacterType);
                         _characters.Add(character);
                         _entityCollection.Add(character);
                     }
@@ -287,6 +323,17 @@ namespace SuperAwesomeGame
             _entityCollection.Draw(gameTime, _spriteBatch);
 
             _spriteBatch.End();
+
+            if (_changeButton != null)
+            {
+                _spriteBatch.Begin(SpriteSortMode.Deferred,
+                    BlendState.AlphaBlend);
+
+                _changeButton.Draw(gameTime, _spriteBatch);
+
+                _spriteBatch.End();
+            }
+
             base.Draw(gameTime);
         }
     }

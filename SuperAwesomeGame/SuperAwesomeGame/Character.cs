@@ -18,22 +18,31 @@ namespace SuperAwesomeGame
         private int _currentIndex;
         private TimeSpan _lastTotalGameTime = new TimeSpan(0);
         private bool _clicked = false;
+        private Vector2 _origin;
 
         public Character(float left, float top, int type)
         {
-            Area.Left = left - TileWidth / 2;
-            Area.Top = top - TileHeight / 2;
+            _origin = Utils.ScreenToWorld(new Vector2(left - TileWidth/2, top - TileHeight/2));
             Area.Width = TileWidth;
             Area.Height = TileHeight;
-            _center = new Vector2(left - TileWidth / 2, top - TileHeight / 2 - Radius);
-            _characterType = type % 3;
+            _center = new Vector2(_origin.X, _origin.Y - Radius);
+
+            if (type < 0) type = 2;
+            else
+            {
+                _characterType = type % 3;
+            }
 
             _currentIndex = 0;
         }
 
-        public void ChangeCharacterType()
+        public bool Clicked
         {
-            _characterType = (_characterType + 1) % 3;
+            get
+            {
+                return _clicked;
+            }
+            set { _clicked = value; }
         }
 
         public override void Select(bool toggle)
@@ -60,11 +69,14 @@ namespace SuperAwesomeGame
             {
                 _currentIndex = (_currentIndex + 1) % 3;
                 _multiplier += 20f;
-                Area.Left = _center.X + (float)Math.Sin((Math.PI / 180) * _multiplier) * Radius;
-                Area.Top = _center.Y + (float)Math.Cos((Math.PI / 180) * _multiplier) * Radius;
+                _origin.X = _center.X + (float)Math.Sin((Math.PI / 180) * _multiplier) * Radius;
+                _origin.Y = _center.Y + (float)Math.Cos((Math.PI / 180) * _multiplier) * Radius;
 
                 _lastTotalGameTime = gameTime.TotalGameTime;
             }
+            var pos = Utils.WorldToScreen(_origin);
+            Area.Left = pos.X;
+            Area.Top = pos.Y;
             
             base.Update(gameTime);
         }

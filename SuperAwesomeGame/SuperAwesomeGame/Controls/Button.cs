@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using SuperAwesomeGame.Common;
 
@@ -48,9 +47,8 @@ namespace SuperAwesomeGame.Controls
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            var fontPos = Area.GetCenter();
-            // Place origin at the center of the string.
             var fontOrigin = Font.MeasureString(Content) / 2;
+            var fontPos = Area.GetCenter();
 
             if (State == EntityState.Default)
             {

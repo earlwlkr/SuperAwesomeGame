@@ -191,6 +191,14 @@ namespace SuperAwesomeGame
                     _currentCharacterType = 2;
                 }
             }
+            else if (keyboardState.IsKeyDown(Keys.OemPlus))
+            {
+                Manager.Camera.Scale += 0.1f;
+            }
+            else if (keyboardState.IsKeyDown(Keys.OemMinus))
+            {
+                Manager.Camera.Scale -= 0.1f;
+            }
 
             var mouseState = Mouse.GetState();
 
